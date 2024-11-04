@@ -2,197 +2,240 @@
 #coding=utf-8
 from flask import Flask, request, jsonify
 import os
+from utils import *
+from Misson_class import *
 
 app = Flask(__name__)
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({"code": 1, "message": "No file part in the request"})
 
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"code": 2, "message": "No selected file"})
+@app.route('/adver_metrics', methods=['GET'])
+def adver_metrics():
+    test_model = request.args.get('test_model')
+    model_dict = init_read_yaml_for_model()
 
-    target_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'testcases')
-    if not os.path.exists(target_folder):
-        os.makedirs(target_folder)
-
-    file.save(os.path.join(target_folder, file.filename))
-
-    file_size = os.path.getsize(os.path.join(target_folder, file.filename))
-
-    response = {
-        "code": 200,
-        "message": "File uploaded successfully",
-        "data": {
-            "fileName": file.filename,
-            "fileSize": file_size
-        }
-    }
-
-    return jsonify(response)
-
-@app.route('/scan', methods=['GET'])
-def scan_files():
-    fileName = request.args.get('fileName')
-    dockerName = request.args.get('dockerName')
-
-    # �~I���~L scan �~D~Z�~\�并读�~O~V�~V~G件�~F~E容
-    scan_script = "../scan.sh {}".format(fileName)
-    os.system(scan_script)
-
-    # 读�~O~V��~S�~^~\�~V~G件�~F~E容
-    scan_result_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'scan_result')
-    with open(os.path.join(scan_result_folder, 'forFunc'), 'r') as for_file:
-        forFunc = for_file.read().strip().split(',')
-
-    with open(os.path.join(scan_result_folder, 'recFunc'), 'r') as rec_file:
-        recFunc = rec_file.read().strip().split(',')
-
-    with open(os.path.join(scan_result_folder, 'scandetail'), 'r') as detail_file:  #####
-        scandetail = detail_file.read().strip()                                     #####
-
-    response = {
-        "code": 200,
-        "Message": "�~I��~O~O�~H~P�~J~_",
-        "Data": {
-            "scanResult": scandetail,
-            "recFunc": recFunc,
-            "forFunc": forFunc
-        }
-    }
-
-    return jsonify(response)
-
-
-@app.route('/execute_script', methods=['GET'])
-def execute_script():
-    function_list = request.args.get('function_list')
-    rec_func = request.args.get('rec_func')
-
-    # �~^~D建�~I���~L start.bash �~D~Z�~\��~Z~D�~Q�令
-    execute_scirpt = "../start.sh {} {}".format(function_list,rec_func)
-
-    # �~I���~L�~Q�令
-    result = os.system(execute_scirpt)
-
-    if result == 0:
+    if "adver_metrics" in model_dict[test_model].keys():
         return jsonify({
             "code": 200,
-            "message": "��~@��~K��~O��~^�~L~V�~N~X.",
-            "data": {
-                "expStatus": 0
-            }
+            "message": "模型的评估指标",
+            "data": model_dict[test_model]["adver_metrics"],
         })
     else:
         return jsonify({
             "code": 400,
-            "message": "�~I���~L�~D~Z�~\�失败",
-            "data": {
-                "expStatus": 1
-            }
+            "message": "模型不对",
+            "data": {}
         })
 
-@app.route('/query_results', methods=['GET'])
-def query_results():
-    fileName = request.args.get('fileName')
-    dockerName = request.args.get('dockerName')
+@app.route('/adver_gen_download', methods=['GET'])
+def adver_gen_download():
+    mission_id = request.args.get('mission_id')
 
-    # �~\���~J级�~[���~U�~I���~L showdetail.sh �~D~Z�~\�
-    os.system("../showdetail.sh {}".format(fileName))
-
-    # ��~@�~_��~X��~P���~X�~\� fuzz_result �~V~G件夹�~O~J�~E�中�~Z~D fuzzResult �~V~G件
-    if os.path.exists("../fuzz_result/fuzzResult"):
-        with open("../fuzz_result/fuzzResult", 'r') as file:
-            content = file.read()
-            data = {
-                "runTime": content.split(';')[0].split(':')[-1].strip(),
-                "totalPaths": content.split(';')[1].split(':')[-1].strip(),
-                "uniqCrashes": content.split(';')[2].split(':')[-1].strip(),
-                "mapDensity": content.split(';')[3].split(':')[-1].strip(),
-                "totalCrashes": content.split(';')[4].split(':')[-1].strip()
-            }
-            response = {
-                "code": 200,
-                "message": "�~L~V�~N~X信�~A�",
-                "data": {
-                    "showDetail": data,
-                    "expStatus": 0
-                }
-            }
-    else:
-        response = {
-            "code": 400,
-            "message": "fuzzResult �~V~G件��~M��~X�~\�",
-            "data": {}
-        }
-
-    return jsonify(response)
-
-
-@app.route('/query_results', methods=['GET'])
-def query_results():
-    fileName = request.args.get('fileName')
-    dockerName = request.args.get('dockerName')
-
-    # �~\���~J级�~[���~U�~I���~L showdetail.sh �~D~Z�~\�
-    os.system("../showdetail.sh {}".format(fileName))
-
-    # ��~@�~_��~X��~P���~X�~\� fuzz_result �~V~G件夹�~O~J�~E�中�~Z~D fuzzResult �~V~G件
-    if os.path.exists("../fuzz_result/fuzzResult"):
-        with open("../fuzz_result/fuzzResult", 'r') as file:
-            content = file.read()
-            data = {
-                "runTime": content.split(';')[0].split(':')[-1].strip(),
-                "totalPaths": content.split(';')[1].split(':')[-1].strip(),
-                "uniqCrashes": content.split(';')[2].split(':')[-1].strip(),
-                "mapDensity": content.split(';')[3].split(':')[-1].strip(),
-                "totalCrashes": content.split(';')[4].split(':')[-1].strip()
-            }
-            response = {
-                "code": 200,
-                "message": "�~L~V�~N~X信�~A�",
-                "data": {
-                    "showDetail": data,
-                    "expStatus": 0
-                }
-            }
-    else:
-        response = {
-            "code": 400,
-            "message": "fuzzResult �~V~G件��~M��~X�~\�",
-            "data": {}
-        }
-
-    return jsonify(response)
-
-
-@app.route('/stop_script', methods=['GET'])
-def stop_script():
-    fileName = request.args.get('fileName')
-    dockerName = request.args.get('dockerName')
-
-    # �~I���~L stop.sh �~D~Z�~\��~]��~I~S��~@ Ubuntu ��~H端并�~X�示 fileName �~Z~D�~@�
-    stop_script = "../stop.sh {}".format(fileName)
-    result = os.system(stop_script)
-
-    # ��~T�~[~^ JSON �~U��~M�
-    if result == 0:
+    if mission_id:
         return jsonify({
             "code": 200,
-        "message": "��~O��~^�~L~V�~N~X已�~A~\止",
-        "data": {
-            "expStatus": 1
-        }
+            "message": "生成的对抗样本zip包下载",
+             "zipAddr": "xxxx",
+        })
+    else :
+        return jsonify({
+            "code": 400,
+            "message": "任务ID未识别",
+            "zipAddr": {}
+        })
+
+
+@app.route('/adver_gen_stop', methods=['POST'])
+def adver_gen_stop():
+    print("Received POST request")
+    mission_id = request.form.get('mission_id', default=None, type=str)
+    mission_manager = MissionManager('Adver_gen_missions_DBSM.csv')
+
+    if mission_id not in mission_manager.missions.keys():
+        return jsonify({
+            "code": 400,
+            "message": "任务不存在，id有误",
+            "data": {"status": 2},
+        })
+    else:
+        mission = mission_manager.missions[mission_id]
+        mission.update_status(1)
+        mission_manager.add_or_update_mission(mission)
+        return jsonify({
+            "code": 200,
+            "message": "任务已停止",
+            "data": {"status": 1},
+        })
+
+
+@app.route('/adver_gen', methods=['GET'])
+def adver_gen_get():
+    mission_id = request.args.get('mission_id')
+
+    mission_manager = MissionManager('Adver_gen_missions_DBSM.csv')
+    if mission_id not in mission_manager.missions.keys():
+        return jsonify({
+            "code": 400,
+            "message": "任务不存在，id有误",
+            "data": {"status": 2},
+        })
+    else:
+        return jsonify({
+            "code": 200,
+            "message": "任务执行中",
+            "data": {
+                "dataNum": 2000,
+                "status": mission_manager.missions[mission_id].mission_status},
+        })
+
+
+@app.route('/adver_gen', methods=['POST'])
+def adver_gen():
+    print("Received POST request")
+    mission_id = request.form.get('mission_id', default=None, type=str)
+    test_model = request.form.get('test_model', default=None, type=str)
+    test_weight = request.form.get('test_weight', default=None, type=str)
+    test_seed = request.form.get('test_seed', default=None, type=str)
+    test_method = request.form.get('test_method', default=None, type=str)
+    timeout = request.form.get('timeout', default=None, type=int)
+
+    mission_manager = MissionManager('Adver_gen_missions_DBSM.csv')
+
+    if mission_id in mission_manager.missions.keys():   ###  if same mission id is executed twice, will report error
+        return jsonify({
+            "code": 400,
+            "message": "该任务已存在",
+            "data": {"status": 2},
+        })
+
+    if all([mission_id, test_model, test_weight, test_seed, test_method, timeout]):
+        mission_status = 2
+        mission = Mission(mission_id, test_model, test_weight, test_seed, test_method, timeout, mission_status)
+        mission_manager.add_or_update_mission(mission)
+
+        return jsonify({
+            "code": 200,
+            "message": "任务已开始执行",
+            "data": {"status": 1},
         })
     else:
         return jsonify({
             "code": 400,
-            "message": "�~I���~L�~D~Z�~\�失败",
-            "data": {
-                "expStatus": 2
-            }
+            "message": "POST参数有误",
+            "data": {"status": 2},
+        })
+
+@app.route('/check_model', methods=['GET'])
+def check_model():
+    test_model = request.args.get('test_model')
+
+    model_dict = init_read_yaml_for_model_duplicate()
+
+    if model_dict[test_model]['download_addr']:
+        return jsonify({
+            "code": 200,
+            "message": "模型权重文件、对抗方法列表",
+             "weightList": model_dict[test_model]['weight_name'],
+            "methodList": model_dict[test_model]['test_method']
+        })
+    else :
+        return jsonify({
+            "code": 400,
+            "message": "模型权重文件、对抗方法列表收集失败",
+            "weightList": {},
+            "methodList": {}
+        })
+
+@app.route('/weight_download', methods=['GET'])
+def weight_download():
+    test_model = request.args.get('test_model')
+
+    model_dict = init_read_yaml_for_model_duplicate()
+
+    if isinstance(model_dict[test_model]['download_addr'], list):
+        return jsonify({
+            "code": 200,
+            "message": "模型权重文件下载, 多个地址",
+             "weightDown": model_dict[test_model]['download_addr']
+        })
+
+    elif isinstance(model_dict[test_model]['download_addr'], str):
+        return jsonify({
+            "code": 200,
+            "message": "模型权重文件下载",
+             "weightDown": model_dict[test_model]['download_addr']
+        })
+    else :
+        return jsonify({
+            "code": 400,
+            "message": "模型权重文件下载类型不对",
+            "weightDown": {}
+        })
+
+
+@app.route('/weight_number', methods=['GET'])
+def weight_number():
+    test_model = request.args.get('test_model')
+
+    model_dict = init_read_yaml_for_model_duplicate()
+
+    if isinstance(model_dict[test_model]['weight_number'], int):
+        return jsonify({
+            "code": 200,
+            "message": "模型权重文件数量",
+             "weightNum": model_dict[test_model]['weight_number']
+        })
+
+    elif isinstance(model_dict[test_model]['weight_number'], str):
+        return jsonify({
+            "code": 400,
+            "message": "请换个模型，这个没有权重",
+             "weightNum": model_dict[test_model]['weight_number']
+        })
+    else :
+        return jsonify({
+            "code": 400,
+            "message": "模型权重文件数量类型不是int, please chech codes",
+            "weightNum": {}
+        })
+
+
+@app.route('/depn_lib', methods=['GET'])
+def depn_lib():
+    model_dict = init_read_yaml_for_model()
+
+    data = [{"targetName": key, "versionList": \
+        [f"{kk}-{str(vv)}" for kk, vv in model_dict[key]["dependents"].items()]} for key in model_dict.keys()]
+
+    if isinstance(data, list):
+        return jsonify({
+            "code": 200,
+            "message": "内置依赖库及其版本信息",
+            "data": data
+        })
+    else:
+        return jsonify({
+            "code": 400,
+            "message": "内置依赖库获取失败",
+            "data": {}
+        })
+
+
+@app.route('/test_model', methods=['GET'])
+def test_model():
+    model_dict = init_read_yaml_for_model()
+    data = list(model_dict.keys())
+
+    if isinstance(data, list):
+        return jsonify({
+        "code": 200,
+        "message": "被测对象的详细信息",
+        "data": data
+        })
+    else:
+        return jsonify({
+            "code": 400,
+            "message": "未能读取到模型列表",
+            "data": {}
         })
 
 if __name__ == "__main__":
