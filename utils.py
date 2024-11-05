@@ -4,6 +4,8 @@ from flask import Flask, request, jsonify
 from functools import wraps
 import yaml
 
+import docker
+
 def return_0_1(code: int =200 , message: str = "done", data: dict = {"v":"k"}):
     #  this code for returning response of POST(GET) with json format
     response = {
@@ -13,11 +15,6 @@ def return_0_1(code: int =200 , message: str = "done", data: dict = {"v":"k"}):
     }
 
     return jsonify(response)
-
-
-# ## there are several functions about interface POST(GET) key. Every key has a unique function
-# def test_model():
-#     return  0
 
 
 def share_weight(contain_id, shared_path):
@@ -95,9 +92,34 @@ def update_yaml():
     ## do we need this funcion?  To be added
     return 0
 
+def exec_docker_container_shell(shell_path:str) -> str:
+    client = docker.from_env()
+
+    parts = shell_path.split(":")
+    container_id = parts[0]
+    ###   你可以给docker容器里的shell脚本提供参数，约定好就行
+    script_path = parts[1] + ' status'    ##  option: {start|stop|status|restart}
+
+    # print("容器 ID:", container_id)
+    # print("脚本路径:", script_path)
+    # print("docker start %s" % (container_id))
+    os.system("docker start %s" % (container_id))
+
+    container = client.containers.get(container_id)
+    exec_result = container.exec_run(cmd=script_path)
+
+
+    if exec_result.exit_code == 0:
+        # 将输出从bytes解码为字符串
+        output = exec_result.output.decode('utf-8')
+        print("Script output:", output)
+    else:
+        print("Script execution failed with exit code:", exec_result.exit_code)
+        print("Error output:", exec_result.output.decode('utf-8'))
+
 
 if __name__ == "__main__":
+    data_dict = init_read_yaml_for_model()
 
-    model_dict = init_read_yaml_for_model_duplicate()
-
-    print(model_dict)
+    print(data_dict["Vgg16"]["docker_container"])
+    exec_docker_container_shell(data_dict["Vgg16"]["docker_container"])

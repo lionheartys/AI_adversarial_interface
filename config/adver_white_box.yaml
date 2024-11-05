@@ -19,7 +19,7 @@ Vgg16:
   weight_number: 3
   weight_name: [name1, name2, name3]
   download_addr: xxxx/path1
-  docker_container: xxx
+  docker_container: 20e2b302f8e5:/root/run.sh
   adver_metrics: ["ACC", "ACTC", "ASS"]
 
 Vgg19:

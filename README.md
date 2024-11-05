@@ -2,7 +2,7 @@
 
 This code achieves an interface, receiving the POST and GET then scheduling several docker containers where adversarial samples are generated.
 
-Now it implemented to Task 10, and Docker container has not been linked yet.
+Now it implemented to Task 16, docker link and security-enhance modes have been implemented.
 
 
 
@@ -77,5 +77,31 @@ curl -X POST http://127.0.0.1:5901/adver_gen_stop \
 * for testing mode10 获取不同被测对象下的评估配置指标
   
     http://127.0.0.1:5901/adver_metrics?test_model=Vgg16
+
+  * for testing mode11 启动测试任务评估
+  
+```shell
+curl -X POST http://127.0.0.1:5901/adver_eval \
+-H "Content-Type: application/x-www-form-urlencoded" \
+-d "mission_id=123" \
+--noproxy 127.0.0.1    
+```
+
+  * for testing mode12 评估过程中数据轮询
+  
+    http://127.0.0.1:5901/adver_eval?mission_id=123
+
+  * for testing mode13 启动安全加固任务
+    
+```shell
+curl -X POST http://127.0.0.1:5901/sec_enhance \
+-H "Content-Type: application/x-www-form-urlencoded" \
+-d "enhance_id=777&test_model=Vgg16&mission_id=12" \
+--noproxy 127.0.0.1    
+```
+
+  * for testing mode14 安全加固过程数据轮询
+  
+    http://127.0.0.1:5901/sec_enhance?enhance_id=123
 
 
