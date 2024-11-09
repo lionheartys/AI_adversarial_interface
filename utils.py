@@ -1,4 +1,6 @@
 import os
+import io
+import zipfile
 
 from flask import Flask, request, jsonify
 from functools import wraps
@@ -98,7 +100,9 @@ def exec_docker_container_shell(shell_path:str) -> str:
     parts = shell_path.split(":")
     container_id = parts[0]
     ###   你可以给docker容器里的shell脚本提供参数，约定好就行
-    script_path = parts[1] + ' status'    ##  option: {start|stop|status|restart}
+    #script_path = parts[1] + ' status'    ##  option: {start|stop|status|restart}
+
+    script_path = parts[1]
 
     # print("容器 ID:", container_id)
     # print("脚本路径:", script_path)
@@ -113,10 +117,44 @@ def exec_docker_container_shell(shell_path:str) -> str:
         # 将输出从bytes解码为字符串
         output = exec_result.output.decode('utf-8')
         print("Script output:", output)
+        return output
     else:
         print("Script execution failed with exit code:", exec_result.exit_code)
         print("Error output:", exec_result.output.decode('utf-8'))
+        error_message = f"Script execution failed with exit code: {exec_result.exit_code}\nError output: {exec_result.output.decode('utf-8')}"
+        return error_message
 
+def download_zip_from_docker(download_addr:str) -> io.BytesIO:
+    container_id, zip_path = download_addr.split(":")
+
+    client = docker.from_env()
+    container = client.containers.get(container_id)
+    bits,stat = container.get_archive(zip_path)
+
+    file_stream = io.BytesIO()
+    for chunk in bits:
+        file_stream.write(chunk)
+    file_stream.seek(0)
+
+    return file_stream
+    
+def multi_file_download_from_docker(file_paths:list) -> io.BytesIO:
+    client = docker.from_env()
+    container_id = file_paths[0].split(":")[0]
+    container = client.containers.get(container_id)
+
+    file_sream = io.BytesIO()
+
+    with zipfile.ZipFile(file_sream, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for file_path in file_paths:
+            file_path = file_path.split(":")[1]
+            bits, stat = container.get_archive(file_path)
+            file_name = file_path.split("/")[-1]
+            zipf.writestr(file_name, b''.join(bits))
+    
+    file_sream.seek(0)
+
+    return file_sream
 
 if __name__ == "__main__":
     data_dict = init_read_yaml_for_model()

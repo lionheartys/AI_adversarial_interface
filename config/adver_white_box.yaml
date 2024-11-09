@@ -18,8 +18,18 @@ Vgg16:
   test_method: [FGSM, PGD, CW, DeepFool]
   weight_number: 3
   weight_name: [name1, name2, name3]
-  download_addr: xxxx/path1
-  docker_container: 20e2b302f8e5:/root/run.sh
+  weight_download_addr: 5334338a5dfe:/usr/weight.txt
+  result_download_addr: xxxx:path2/
+  enhance_download_addr: xxxx:path3/
+  docker_container_run_shell: 5334338a5dfe:/root/run.sh
+  docker_container_query_shell: 5334338a5dfe:/root/query.sh
+  docker_container_stop_shell: 5334338a5dfe:/root/stop.sh
+  docker_container_evaluate_shell: 5334338a5dfe:/root/evaluate.sh
+  docker_container_evaluate_query_shell: 5334338a5dfe:/root/evaluate_query.sh
+  docker_container_enchance_shell: 5334338a5dfe:/root/enchance.sh
+  docker_container_enchance_query_shell: 5334338a5dfe:/root/enchance_query.sh
+  docker_container_enchance_stop_shell: 5334338a5dfe:/root/enchance_stop.sh
+
   adver_metrics: ["ACC", "ACTC", "ASS"]
 
 Vgg19:
@@ -32,7 +42,9 @@ Vgg19:
   weight_number: 3
   weight_name: [name1, name2, name3]
   download_addr: xxxx/path
-  docker_container: xxx
+  docker_container_run_shell: 20e2b302f8e5:/root/run.sh
+  docker_container_query_shell: 20e2b302f8e5:/root/query.sh
+  docker_container_stop_shell: 20e2b302f8e5:/root/stop.sh
   adver_metrics: ["ACC", "ACTC", "ASS"]
 
 Librispeech:
@@ -45,5 +57,7 @@ Librispeech:
   weight_number: 3
   weight_name: [name1, name2, name3]
   download_addr: xxxx/path
-  docker_container: xxx
+  docker_container_run_shell: 20e2b302f8e5:/root/run.sh
+  docker_container_query_shell: 20e2b302f8e5:/root/query.sh
+  docker_container_stop_shell: 20e2b302f8e5:/root/stop.sh
   adver_metrics: ["ACC", "ACTC", "ASS"]
