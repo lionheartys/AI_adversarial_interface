@@ -9,56 +9,72 @@
 #  download_addr: xxxx/path
 #  docker_container: xxx
 
-Vgg16:
-  version:
-  dependents:
-    Pytorch: 2.2
-    Numpy: 1.1
-    Opencv: 1.0
-  test_method: [FGSM, PGD, CW, DeepFool]
-  weight_number: 3
-  weight_name: [name1, name2, name3]
-  weight_download_addr: 5334338a5dfe:/usr/weights.tar.gz
-  #weight_download_addr: ["5334338a5dfe:/usr/weight1.pth", "5334338a5dfe:/usr/weight2.pth"]
-  result_download_addr: xxxx:path2/test1
-  enhance_download_addr: xxxx:path3/
-  docker_container_run_shell: 5334338a5dfe:/root/run.sh
-  docker_container_run_query_shell: 5334338a5dfe:/root/query.sh
-  docker_container_run_stop_shell: 5334338a5dfe:/root/stop.sh
-  docker_container_evaluate_shell: 5334338a5dfe:/root/evaluate.sh
-  docker_container_evaluate_query_shell: 5334338a5dfe:/root/evaluate_query.sh
-  docker_container_enchance_shell: 5334338a5dfe:/root/enchance.sh
-  docker_container_enchance_query_shell: 5334338a5dfe:/root/enchance_query.sh
-  docker_container_enchance_stop_shell: 5334338a5dfe:/root/enchance_stop.sh
+  ResNet:
+    version:
+    dependents:
+      torch: 1.6.0
+      Numpy: 1.19.2
+      pencv-contrib-python: 4.6.0.66
+    test_method: [FGSM, PGD, CW2, DeepFool]
+    weight_number: 3
+    weight_name: [resnet20_cifar.pt,CIFAR10_PAT_enhanced.pt, CIFAR10_RAND_enhanced.pt]
+    weight_download_addr: ["/root/AISafety/Models/weights/resnet20_cifar.pt", "/root/AISafety/Models/weights/CIFAR10_PAT_enhanced.pt","/root/AISafety/Models/weights/CIFAR10_RAND_enhanced.pt"]
+    result_download_addr: xxxx:/root/adv_sample/
+    #enhance_download_addr: xxxx:path3/
+    docker_container_run_shell: 5334338a5dfe:/root/run.sh
+    docker_container_run_query_shell: 5334338a5dfe:/root/run_poll.sh
+    docker_container_run_stop_shell: 5334338a5dfe:/root/run_kill.sh
+    docker_container_evaluate_shell: 5334338a5dfe:/root/eval.sh
+    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_poll.sh
+    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_kill.sh
+    #docker_container_enchance_shell: 5334338a5dfe:/root/enchance.sh
+    #docker_container_enchance_query_shell: 5334338a5dfe:/root/enchance_query.sh
+    #docker_container_enchance_stop_shell: 5334338a5dfe:/root/enchance_stop.sh
+    adver_metrics: ["ACC", "ACTC", "ASS", "ACAC", "ALDp", "PSD", "NTE"]
+  
+  VGG19:
+    version:
+    dependents:
+      torch: 1.6.0
+      Numpy: 1.19.2
+      pencv-contrib-python: 4.6.0.66
+    test_method: [FGSM, PGD, CW2, DeepFool]
+    weight_number: 1
+    weight_name: [vgg19.pth]
+    result_download_addr: xxxx:/root/adv_sample/
+    #enhance_download_addr: xxxx:path3/
+    docker_container_run_shell: 5334338a5dfe:/root/run.sh
+    docker_container_run_query_shell: 5334338a5dfe:/root/run_poll.sh
+    docker_container_run_stop_shell: 5334338a5dfe:/root/run_kill.sh
+    docker_container_evaluate_shell: 5334338a5dfe:/root/eval.sh
+    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_poll.sh
+    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_kill.sh
+    #docker_container_enchance_shell: 5334338a5dfe:/root/enchance.sh
+    #docker_container_enchance_query_shell: 5334338a5dfe:/root/enchance_query.sh
+    #docker_container_enchance_stop_shell: 5334338a5dfe:/root/enchance_stop.sh
+    adver_metrics: ["ACC", "ACTC", "ASS", "ACAC", "ALDp", "PSD", "NTE"]
 
-  adver_metrics: ["ACC", "ACTC", "ASS"]
-
-Vgg19:
-  version:
-  dependents:
-    Pytorch: 2.2
-    Numpy: 1.1
-    Opencv: 1.0
-  test_method: [FGSM, PGD, CW, DeepFool]
-  weight_number: 3
-  weight_name: [name1, name2, name3]
-  download_addr: xxxx/path
-  docker_container_run_shell: 20e2b302f8e5:/root/run.sh
-  docker_container_query_shell: 20e2b302f8e5:/root/query.sh
-  docker_container_stop_shell: 20e2b302f8e5:/root/stop.sh
-  adver_metrics: ["ACC", "ACTC", "ASS"]
-
-Librispeech:
-  version:
-  dependents:
-    Pytorch: 2.2
-    Numpy: 1.1
-    Opencv: 1.0
-  test_method: [FGSM, PGD, CW, DeepFool]
-  weight_number: 3
-  weight_name: [name1, name2, name3]
-  download_addr: xxxx/path
-  docker_container_run_shell: 20e2b302f8e5:/root/run.sh
-  docker_container_query_shell: 20e2b302f8e5:/root/query.sh
-  docker_container_stop_shell: 20e2b302f8e5:/root/stop.sh
-  adver_metrics: ["ACC", "ACTC", "ASS"]
+  VGG16:
+    version:
+    dependents:
+      torch: 1.6.0
+      Numpy: 1.19.2
+      pencv-contrib-python: 4.6.0.66
+    test_method: [FGSM, PGD, CW2, DeepFool]
+    weight_number: 1
+    weight_name: [vgg16.pth]
+    result_download_addr: xxxx:/root/adv_sample/
+    #enhance_download_addr: xxxx:path3/
+    docker_container_run_shell: 5334338a5dfe:/root/run.sh
+    docker_container_run_query_shell: 5334338a5dfe:/root/run_poll.sh
+    docker_container_run_stop_shell: 5334338a5dfe:/root/run_kill.sh
+    docker_container_evaluate_shell: 5334338a5dfe:/root/eval.sh
+    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_poll.sh
+    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_kill.sh
+    #docker_container_enchance_shell: 5334338a5dfe:/root/enchance.sh
+    #docker_container_enchance_query_shell: 5334338a5dfe:/root/enchance_query.sh
+    #docker_container_enchance_stop_shell: 5334338a5dfe:/root/enchance_stop.sh
+    adver_metrics: ["ACC", "ACTC", "ASS", "ACAC", "ALDp", "PSD", "NTE"]
+  
+  
+ 

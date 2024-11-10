@@ -294,8 +294,9 @@ def adver_gen_download():
     if mission_id:
         mission = mission_manager.missions[mission_id]
         model_dict = init_read_yaml_for_model_duplicate()
+        model = mission.test_model
         zip_addr = model_dict[mission.test_model].get('result_download_addr')
-        zip_addr = f"{zip_addr}/{mission_id}_result.zip"
+        zip_addr = f"{zip_addr}/Attack_generation_{model}_{mission_id}.tar.gz"
 
         zip_stream = download_zip_from_docker(zip_addr)
         return send_file(zip_stream, mimetype='application/zip', as_attachment=True, download_name=f"{mission_id}_result.zip")
