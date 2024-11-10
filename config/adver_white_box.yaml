@@ -19,7 +19,7 @@ Vgg16:
   weight_number: 3
   weight_name: [name1, name2, name3]
   weight_download_addr: 5334338a5dfe:/usr/weight.txt
-  result_download_addr: xxxx:path2/
+  result_download_addr: xxxx:path2/test
   enhance_download_addr: xxxx:path3/
   docker_container_run_shell: 5334338a5dfe:/root/run.sh
   docker_container_query_shell: 5334338a5dfe:/root/query.sh
