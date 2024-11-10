@@ -104,7 +104,7 @@ curl -X POST http://127.0.0.1:5901/adver_gen_stop \
 ```shell
 curl -X POST http://127.0.0.1:5901/adver_eval \
 -H "Content-Type: application/x-www-form-urlencoded" \
--d "mission_id=123" \
+-d "mission_id=123&eval_metric=abc" \
 --noproxy 127.0.0.1    
 ```
 

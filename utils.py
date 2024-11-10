@@ -149,8 +149,9 @@ def multi_file_download_from_docker(file_paths:list) -> io.BytesIO:
         for file_path in file_paths:
             file_path = file_path.split(":")[1]
             bits, stat = container.get_archive(file_path)
-            file_name = file_path.split("/")[-1]
-            zipf.writestr(file_name, b''.join(bits))
+            file_name_with_ext = file_path.split("/")[-1]
+            file_name, _ = os.path.splitext(file_name_with_ext)
+            zipf.writestr(f"{file_name}.tar", b''.join(bits))
     
     file_sream.seek(0)
 

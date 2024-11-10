@@ -211,7 +211,7 @@ def adver_eval_query():
             "code": 200,
             "message": "任务执行中",
             "data": {
-                "process": 67.1,   ## 0-100的进度值，平台拼接%
+                "process": 67.1,   ## 0-100的进度值，平台拼接%(实现方式有待商榷)
                 "metricsScores": metrics,
                     # [\
                     #     {"name":"ACC", "score": 90},\
@@ -224,6 +224,8 @@ def adver_eval_query():
 @app.route('/adver_eval', methods=['POST'])
 def adver_eval():
     mission_id = request.form.get('mission_id', default=None, type=str)
+    eval_metrics = request.form.getlist('eval_metric')
+
     mission_manager = MissionManager('Adver_gen_missions_DBSM.csv')
 
     '''
@@ -241,16 +243,20 @@ def adver_eval():
     else:
         mission = mission_manager.missions[mission_id]
         model_dict = init_read_yaml_for_model_duplicate()
+
+        metrics = ' '.join(eval_metrics)
+
         dcoker_shell_run = model_dict[mission.test_model].get('docker_container_evaluate_shell')
         container_id, script_path = dcoker_shell_run.split(":", 1)
-        shell_command = f"{script_path} {mission_id}"
+        shell_command = f"{script_path} {mission_id} {metrics}"
         shell_path = f"{container_id}:{shell_command}"
-        exec_docker_container_shell(shell_path)
+        res = exec_docker_container_shell(shell_path)
 
         return jsonify({
             "code": 200,
             "message": "评估已开始执行",
             "data": {"status": 1},
+            "res": res
         })
 
 ## mode10: 获取不同被测对象下的评估配置指标
@@ -326,7 +332,7 @@ def adver_gen_stop():
         mission_manager.add_or_update_mission(mission)
 
         model_dict = init_read_yaml_for_model_duplicate()
-        docker_shell_run = model_dict[mission.test_model].get('docker_container_stop_shell')
+        docker_shell_run = model_dict[mission.test_model].get('docker_container_run_stop_shell')
         container_id, script_path = docker_shell_run.split(":", 1)
         shell_path = f"{container_id}:{script_path}"
         exec_docker_container_shell(shell_path)
@@ -356,7 +362,7 @@ def adver_gen_get():
         })
     else:
         model_dict = init_read_yaml_for_model_duplicate()
-        docker_shell_run = model_dict[mission_manager.missions[mission_id].test_model].get('docker_container_query_shell')
+        docker_shell_run = model_dict[mission_manager.missions[mission_id].test_model].get('docker_container_run_query_shell')
         container_id, script_path = docker_shell_run.split(":", 1)
         shell_path = f"{container_id}:{script_path}"
         data_num = exec_docker_container_shell(shell_path)
@@ -407,7 +413,7 @@ def adver_gen():
         container_id, script_path = docker_shell_run.split(":", 1)
         
         # 构建完整的命令：run.sh test_model test_weight test_seed test_method
-        shell_command = f"{script_path} {test_model} {test_weight} {test_seed} {test_method}"
+        shell_command = f"{script_path} {mission_id} {test_model} {test_weight} {test_seed} {test_method}"
 
         # 拼接容器ID和命令
         shell_path = f"{container_id}:{shell_command}"
