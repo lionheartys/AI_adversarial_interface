@@ -115,9 +115,15 @@ def exec_docker_container_shell(shell_path:str) -> str:
 
     if exec_result.exit_code == 0:
         # 将输出从bytes解码为字符串
-        output = exec_result.output.decode('utf-8')
-        print("Script output:", output)
-        return output
+        try:
+            # 尝试解码输出为 UTF-8 字符串，忽略解码错误
+            output = exec_result.output.decode('utf-8', errors='ignore')
+            print("Script output:", output)
+            return output
+        except UnicodeDecodeError:
+            # 如果解码失败，返回原始字节数据
+            print("Received non-UTF-8 output")
+            return exec_result.output
     else:
         print("Script execution failed with exit code:", exec_result.exit_code)
         print("Error output:", exec_result.output.decode('utf-8'))
