@@ -18,15 +18,16 @@
     test_method: [FGSM, PGD, CW2, DeepFool]
     weight_number: 3
     weight_name: [resnet20_cifar.pt,CIFAR10_PAT_enhanced.pt, CIFAR10_RAND_enhanced.pt]
-    weight_download_addr: ["5334338a5dfe:/usr/weight1.txt", "5334338a5dfe:/usr/weight2.txt","5334338a5dfe:/usr/weight1.txt"]
-    result_download_addr: xxxx:/root/adv_sample/
+    weight_download_addr: ["4fedc50f276b:/root/AISafety/Models/weights/resnet20_cifar.pt", "4fedc50f276b:/root/AISafety/Models/weights/CIFAR10_PAT_enhanced.pt", "4fedc50f276b:/root/AISafety/Models/weights/CIFAR10_PAT_enhanced.pt"]
+    result_download_addr: 4fedc50f276b:/root/adv_sample/
     #enhance_download_addr: xxxx:path3/
-    docker_container_run_shell: 5334338a5dfe:/root/run.sh
-    docker_container_run_query_shell: 5334338a5dfe:/root/run_poll.sh
-    docker_container_run_stop_shell: 5334338a5dfe:/root/run_kill.sh
-    docker_container_evaluate_shell: 5334338a5dfe:/root/eval.sh
-    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_poll.sh
-    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_kill.sh
+    docker_container_run_shell: 4fedc50f276b:/root/run.sh
+    docker_container_run_query_shell: 4fedc50f276b:/root/run_poll.sh
+    docker_container_run_stop_shell: 4fedc50f276b:/root/run_kill.sh
+    docker_container_evaluate_shell: 4fedc50f276b:/root/evaluation.sh
+    docker_container_evaluate_query_shell: 4fedc50f276b:/root/evaluation_poll.sh
+    #docker_container_evaluate_query_shell: 4fedc50f276b:/root/eval1.sh
+    #docker_container_evaluate_query_shell: 4fedc50f276b:/roo0t/eval_kill.sh
     #docker_container_enchance_shell: 5334338a5dfe:/root/enchance.sh
     #docker_container_enchance_query_shell: 5334338a5dfe:/root/enchance_query.sh
     #docker_container_enchance_stop_shell: 5334338a5dfe:/root/enchance_stop.sh
@@ -41,14 +42,15 @@
     test_method: [FGSM, PGD, CW2, DeepFool]
     weight_number: 1
     weight_name: [vgg19.pth]
-    result_download_addr: xxxx:/root/adv_sample/
+    weight_download_addr: ["4fedc50f276b:/root/AISafety/Models/weights/vgg19.pth"]
+    result_download_addr: 4fedc50f276b:/root/adv_sample/
     #enhance_download_addr: xxxx:path3/
-    docker_container_run_shell: 5334338a5dfe:/root/run.sh
-    docker_container_run_query_shell: 5334338a5dfe:/root/run_poll.sh
-    docker_container_run_stop_shell: 5334338a5dfe:/root/run_kill.sh
-    docker_container_evaluate_shell: 5334338a5dfe:/root/eval.sh
-    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_poll.sh
-    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_kill.sh
+    docker_container_run_shell: 4fedc50f276b:/root/run.sh
+    docker_container_run_query_shell: 4fedc50f276b:/root/run_poll.sh
+    docker_container_run_stop_shell: 4fedc50f276b:/root/run_kill.sh
+    docker_container_evaluate_shell: 4fedc50f276b:/root/evaluation.sh
+    docker_container_evaluate_query_shell: 4fedc50f276b:/root/evaluation_poll.sh
+    #docker_container_evaluate_query_shell: 4fedc50f276b:/root/eval_kill.sh
     #docker_container_enchance_shell: 5334338a5dfe:/root/enchance.sh
     #docker_container_enchance_query_shell: 5334338a5dfe:/root/enchance_query.sh
     #docker_container_enchance_stop_shell: 5334338a5dfe:/root/enchance_stop.sh
@@ -63,14 +65,15 @@
     test_method: [FGSM, PGD, CW2, DeepFool]
     weight_number: 1
     weight_name: [vgg16.pth]
-    result_download_addr: xxxx:/root/adv_sample/
+    weight_download_addr: ["4fedc50f276b:/root/AISafety/Models/weights/vgg16.pth"]
+    result_download_addr: 4fedc50f276b:/root/adv_sample/
     #enhance_download_addr: xxxx:path3/
-    docker_container_run_shell: 5334338a5dfe:/root/run.sh
-    docker_container_run_query_shell: 5334338a5dfe:/root/run_poll.sh
-    docker_container_run_stop_shell: 5334338a5dfe:/root/run_kill.sh
-    docker_container_evaluate_shell: 5334338a5dfe:/root/evaluate.sh
-    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_poll.sh
-    docker_container_evaluate_query_shell: 5334338a5dfe:/roo0t/eval_kill.sh
+    docker_container_run_shell: 4fedc50f276b:/root/run.sh
+    docker_container_run_query_shell: 4fedc50f276b:/root/run_poll.sh
+    docker_container_run_stop_shell: 4fedc50f276b:/root/run_kill.sh
+    docker_container_evaluate_shell: 4fedc50f276b:/root/evaluation.sh
+    docker_container_evaluate_query_shell: 4fedc50f276b:/root/evaluation_poll.sh
+    #docker_container_evaluate_query_shell: 5334338a5dfe:/root/evaluation_kill.sh
     #docker_container_enchance_shell: 5334338a5dfe:/root/enchance.sh
     #docker_container_enchance_query_shell: 5334338a5dfe:/root/enchance_query.sh
     #docker_container_enchance_stop_shell: 5334338a5dfe:/root/enchance_stop.sh

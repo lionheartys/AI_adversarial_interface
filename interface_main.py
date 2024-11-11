@@ -201,12 +201,11 @@ def adver_eval_query():
         shell_command = f"{script_path} {mission_id}"
         shell_path = f"{container_id}:{shell_command}"
         exec_result = exec_docker_container_shell(shell_path)
-        
+
         for line in exec_result.splitlines():
             for metric in adver_metrics:
                 if line.startswith(metric):
                     metrics.append({"name": metric, "score": float(line.split(":")[1].strip())})
-
         return jsonify({
             "code": 200,
             "message": "任务执行中",
