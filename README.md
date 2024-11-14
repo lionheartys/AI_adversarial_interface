@@ -47,7 +47,7 @@ Now it implemented to Task 16, docker link and security-enhance modes have been 
     http://127.0.0.1:5901/weight_number?test_model=Vgg16
 
     ```bash
-    curl -v -X GET "http://127.0.0.1:5901/weight_number?test_model=Vgg16" --noproxy 127.0.0.1
+    curl -v -X GET "http://127.0.0.1:5901/weight_number?test_model=ResNet" --noproxy 127.0.0.1
     ```
 
   * for testing mode4 被测对象的模型权重文件zip包下载
@@ -55,7 +55,7 @@ Now it implemented to Task 16, docker link and security-enhance modes have been 
     http://127.0.0.1:5901/weight_download?test_model=Vgg16
 
     ```bash
-    curl -v -X GET "http://127.0.0.1:5901/weight_download?test_model=Vgg16" -o "Vgg16_weights.zip" --noproxy 127.0.0.1
+    curl -v -X GET "http://127.0.0.1:5901/weight_download?test_model=ResNet" -o "Vgg16_weights.zip" --noproxy 127.0.0.1
     ```
 
   * for testing mode5 获取被测对象的模型权重文件列表、对抗方法列表的数据源
@@ -63,7 +63,7 @@ Now it implemented to Task 16, docker link and security-enhance modes have been 
     http://127.0.0.1:5901/check_model?test_model=Vgg16
 
     ```bash
-    curl -v -X GET "http://127.0.0.1:5901/check_model?test_model=Vgg16" --noproxy 127.0.0.1
+    curl -v -X GET "http://127.0.0.1:5901/check_model?test_model=ResNet" --noproxy 127.0.0.1
     ```
 
 
@@ -72,10 +72,7 @@ Now it implemented to Task 16, docker link and security-enhance modes have been 
     * leveraging curl for POST:
 
 ```shell
-curl -X POST http://127.0.0.1:5901/adver_gen \
--H "Content-Type: application/x-www-form-urlencoded" \
--d "mission_id=123&test_model=Vgg16&test_weight=weightA&test_seed=seed1&test_method=FGSM&timeout=3600"  \
---noproxy 127.0.0.1     ***if you has set proxy, this option should be added***
+curl -X POST http://127.0.0.1:5901/adver_gen -H "Content-Type: application/x-www-form-urlencoded" -d "mission_id=1344&test_model=ResNet&test_weight=resnet20_cifar.pt&test_seed=cifar&test_method=FGSM&timeout=3600"    ***if you has set proxy, this option should be added***
 ```
 
   * for testing mode7 对抗样本生成过程中数据轮询
@@ -94,24 +91,31 @@ curl -X POST http://127.0.0.1:5901/adver_gen_stop \
 * for testing mode9 生成的对抗样本zip包下载
 
   http://127.0.0.1:5901/adver_gen_download?mission_id=321
+  ```bash
+    curl -v -X GET "http://127.0.0.1:5901/adver_gen_download?mission_id=1314" -o "resnet_weights.zip" --noproxy 127.0.0.1
+  ```
 
 * for testing mode10 获取不同被测对象下的评估配置指标
 
   http://127.0.0.1:5901/adver_metrics?test_model=Vgg16
-
+  ```bash
+    curl -v -X GET "http://127.0.0.1:5901/adver_metrics?test_model=ResNet" --noproxy 127.0.0.1
+  ```
   * for testing mode11 启动测试任务评估
 
 ```shell
 curl -X POST http://127.0.0.1:5901/adver_eval \
 -H "Content-Type: application/x-www-form-urlencoded" \
--d "mission_id=123&eval_metric=abc" \
+-d "mission_id=1314&eval_metric=ACC&eval_metric=PSD" \
 --noproxy 127.0.0.1    
 ```
 
   * for testing mode12 评估过程中数据轮询
 
     http://127.0.0.1:5901/adver_eval?mission_id=123
-
+  ```bash
+    curl -v -X GET "http://127.0.0.1:5901/adver_eval?mission_id=1344" --noproxy 127.0.0.1
+  ```
   * for testing mode13 启动安全加固任务
 
 ```shell
