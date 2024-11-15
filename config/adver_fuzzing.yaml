@@ -9,7 +9,7 @@
 #  download_addr: xxxx/path
 #  docker_container: xxx
 
-Vgg16_2:
+Vgg16_fuzz:
   version:
   dependents:
     tensorflow: 2.18.0
@@ -42,7 +42,7 @@ DeepFace:
   weight_number: 1
   weight_name: [model.h5]
   #docker_container: XXXXX
-  weight_download_addr: [761b46823a1b:/root/AItest/model/2/model.h5]
+  weight_download_addr: ["761b46823a1b:/root/AItest/model/2/model.h5"]
   result_download_addr: 761b46823a1b:/root/adv_sample/
   enhance_download_addr: 761b46823a1b:/root/enhance/
   docker_container_run_shell: 761b46823a1b:/root/bash/run.sh

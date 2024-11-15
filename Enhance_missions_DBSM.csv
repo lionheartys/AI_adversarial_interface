@@ -1,5 +1,5 @@
 mission_id,test_model,test_weight,test_seed,test_method,timeout,mission_status,enhance_id
-123,Vgg16,weightA,seed1,FGSM,3600,1,888
-123,Vgg16,weightA,seed1,FGSM,3600,1,777
-12,Vgg16,weightA,seed1,FGSM,3600,2,7799
-123,Vgg16,weightA,seed1,FGSM,3600,1,321
+1112,Vgg19,vgg19.pth,imagenet,FGSM,3600,1,1113
+13308211514,Vgg19,vgg19.pth,imagenet,FGSM,3600,1,2222
+13308211514,Vgg19,vgg19.pth,imagenet,FGSM,3600,1,2224
+13308211514,Vgg19,vgg19.pth,imagenet,FGSM,3600,1,2230

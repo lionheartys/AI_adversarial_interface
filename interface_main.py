@@ -14,6 +14,7 @@ app = Flask(__name__)
 @app.route('/sec_enhance_weight_download', methods=['GET'])
 def sec_enhance_weight_download():
     enhance_id = request.args.get('enhance_id')
+    enhance_manager = Enhance_MissionManager('Adver_gen_missions_DBSM.csv')
 
     '''
            根据docker引擎实际情况修改run.sh
@@ -22,7 +23,7 @@ def sec_enhance_weight_download():
         '''
         
     if enhance_id:
-        mission = enhance_manager.enhance_mission_dic[enhance_id]
+        mission = enhance_manager.enhance_mission_dict[enhance_id]
 
         model_dict = init_read_yaml_for_model_duplicate()
         zip_addr = model_dict[mission.test_model].get('enhance_download_addr')
@@ -71,8 +72,8 @@ def sec_enhance_stop():
 
         docker_shell_run = model_dict[mission.test_model].get('docker_container_enchance_stop_shell')
         container_id, script_path = docker_shell_run.split(":", 1)
-        #shell_command = f"{script_path} {mission_id} {enhance_id}"
-        shell_command = f"{script_path}"
+        shell_command = f"{script_path} {enhance_id}"
+        #shell_command = f"{script_path}"
         shell_path = f"{container_id}:{shell_command}"
         exec_docker_container_shell(shell_path)
 
@@ -103,6 +104,7 @@ def sec_enhance_query():
             "data": {"status": 2},
         })
     else:
+        '''
         return jsonify({
             "code": 200,
             "message": "安全加固执行中",
@@ -112,6 +114,21 @@ def sec_enhance_query():
                 "loss": 3.4,
                 "weightNum": 5,
                 "status": 1},
+        })
+        '''
+        enhance_mission = enhance_manager.enhance_mission_dict[enhance_id]
+        model_dict = init_read_yaml_for_model_duplicate()
+
+        docker_shell_run = model_dict[enhance_mission.test_model].get('docker_container_enchance_query_shell')
+        container_id, script_path = docker_shell_run.split(":", 1)
+        shell_command = f"{script_path} {enhance_id}"
+        shell_path = f"{container_id}:{shell_command}"
+        exec_result = exec_docker_container_shell(shell_path)
+
+        return jsonify({
+            "code": 200,
+            "message": "安全加固执行中",
+            "data": exec_result,
         })
 
 ## mode13: 启动安全加固任务
@@ -152,8 +169,8 @@ def sec_enhance():
 
         docker_shell_run = model_dict[enhance_mission.test_model].get('docker_container_enchance_shell')
         container_id, script_path = docker_shell_run.split(":", 1)
-        #shell_command = f"{script_path} {mission_id} {enhance_id}"
-        shell_command = f"{script_path}"
+        shell_command = f"{script_path} {mission_id} {test_model} {enhance_id}"
+        #shell_command = f"{script_path}"
         shell_path = f"{container_id}:{shell_command}"
         exec_docker_container_shell(shell_path)
 
@@ -223,7 +240,7 @@ def adver_eval_query():
 @app.route('/adver_eval', methods=['POST'])
 def adver_eval():
     mission_id = request.form.get('mission_id', default=None, type=str)
-    eval_metrics = request.form.getlist('eval_metric')
+    #eval_metrics = request.form.getlist('eval_metric')
 
     mission_manager = MissionManager('Adver_gen_missions_DBSM.csv')
 
@@ -243,11 +260,11 @@ def adver_eval():
         mission = mission_manager.missions[mission_id]
         model_dict = init_read_yaml_for_model_duplicate()
 
-        metrics = ' '.join(eval_metrics)
+        #metrics = ' '.join(eval_metrics)
 
         dcoker_shell_run = model_dict[mission.test_model].get('docker_container_evaluate_shell')
         container_id, script_path = dcoker_shell_run.split(":", 1)
-        shell_command = f"{script_path} {mission_id} {metrics}"
+        shell_command = f"{script_path} {mission_id}"
         shell_path = f"{container_id}:{shell_command}"
         res = exec_docker_container_shell(shell_path)
 
@@ -334,7 +351,7 @@ def adver_gen_stop():
         model_dict = init_read_yaml_for_model_duplicate()
         docker_shell_run = model_dict[mission.test_model].get('docker_container_run_stop_shell')
         container_id, script_path = docker_shell_run.split(":", 1)
-        shell_path = f"{container_id}:{script_path}"
+        shell_path = f"{container_id}:{script_path} {mission_id}"
         exec_docker_container_shell(shell_path)
 
         return jsonify({
@@ -364,7 +381,7 @@ def adver_gen_get():
         model_dict = init_read_yaml_for_model_duplicate()
         docker_shell_run = model_dict[mission_manager.missions[mission_id].test_model].get('docker_container_run_query_shell')
         container_id, script_path = docker_shell_run.split(":", 1)
-        shell_path = f"{container_id}:{script_path}"
+        shell_path = f"{container_id}:{script_path} {mission_id}"
         data_num = exec_docker_container_shell(shell_path)
 
         return jsonify({
@@ -383,9 +400,11 @@ def adver_gen():
     mission_id = request.form.get('mission_id', default=None, type=str)
     test_model = request.form.get('test_model', default=None, type=str)
     test_weight = request.form.get('test_weight', default=None, type=str)
-    test_seed = request.form.get('test_seed', default=None, type=str)
+    #test_seed = request.form.get('test_seed', default=None, type=str)
     test_method = request.form.get('test_method', default=None, type=str)
     timeout = request.form.get('timeout', default=None, type=int)
+
+    file_paths = []
 
     mission_manager = MissionManager('Adver_gen_missions_DBSM.csv')
     '''
@@ -393,13 +412,27 @@ def adver_gen():
 
         exec_docker_container_shell("xxxxx:/some/path/your_run1.sh")
         '''
-
+'''
     if mission_id in mission_manager.missions.keys():   ###  if same mission id is executed twice, will report error
         return jsonify({
             "code": 400,
             "message": "该任务已存在",
             "data": {"status": 2},
         })
+'''
+    files = request.files.getlist('test_seed')  # 获取多个文件
+    for file in files:
+        if file.filename == '' or not str(file.filename).endswith(".zip"):
+            continue
+        #filename = secure_filename(file.filename)  # 防止非法文件名
+        filename = file.filename
+        file_path = os.path.abspath(os.path.join("./upload", filename))
+        file.save(file_path)  # 保存文件
+        file_paths.append(file_path)
+
+    seed_list = ",".join(file_paths)
+
+    test_seed = "1111"  #还未约定好文件传输格式，暂且给个确定值，方便后面测试
 
     if all([mission_id, test_model, test_weight, test_seed, test_method, timeout]):
         mission_status = 2
@@ -413,12 +446,13 @@ def adver_gen():
         container_id, script_path = docker_shell_run.split(":", 1)
         
         # 构建完整的命令：run.sh test_model test_weight test_seed test_method
-        shell_command = f"{script_path} {mission_id} {test_model} {test_weight} {test_seed} {test_method}"
+        shell_command = f"{script_path} {mission_id} {test_model} {test_weight} {test_seed} {test_method} {timeout}"
 
         # 拼接容器ID和命令
         shell_path = f"{container_id}:{shell_command}"
 
         #shell_path = f"{container_id}:{script_path}"
+        upload_files_to_docker(file_paths, container_id)
 
         exec_docker_container_shell(shell_path)
 
@@ -441,12 +475,24 @@ def check_model():
 
     model_dict = init_read_yaml_for_model_duplicate()
 
+    test_methods = model_dict[test_model].get('test_method', [])
+
+    # 构造对抗方法的 `label` 和 `value`
+    test_method_list = [
+        {
+            "label": translate_test_method(method),
+            "value": method
+        }
+        for method in test_methods
+    ]
+
     if model_dict[test_model]['weight_download_addr']:
         return jsonify({
             "code": 200,
             "message": "模型权重文件、对抗方法列表",
-             "weightList": model_dict[test_model]['weight_name'],
-            "methodList": model_dict[test_model]['test_method']
+            "weightList": model_dict[test_model]['weight_name'],
+            #"methodList": model_dict[test_model]['test_method']
+            "methodList": test_method_list
         })
     else :
         return jsonify({
