@@ -7,6 +7,7 @@ from functools import wraps
 import yaml
 
 import docker
+import subprocess
 
 def return_0_1(code: int =200 , message: str = "done", data: dict = {"v":"k"}):
     #  this code for returning response of POST(GET) with json format
@@ -101,9 +102,51 @@ def translate_test_method(method):
         "CW": "CW攻击",
         "CW2": "CW2攻击",
         "DeepFool": "深度愚弄法",
-        "fuzzing": "模糊测试"
+        "fuzzing": "模糊测试",
+        "GAN": "生成对抗网络"
     }
     return translations.get(method, method)
+
+def exec_docker_container_shell_detach(shell_path:str) -> str:
+    client = docker.from_env()
+
+    parts = shell_path.split(":")
+    container_id = parts[0]
+    ###   你可以给docker容器里的shell脚本提供参数，约定好就行
+    #script_path = parts[1] + ' status'    ##  option: {start|stop|status|restart}
+
+    script_path = parts[1]
+
+    # print("容器 ID:", container_id)
+    # print("脚本路径:", script_path)
+    # print("docker start %s" % (container_id))
+    os.system("docker start %s" % (container_id))
+
+    cmd = f"bash -c '{script_path}' &"
+
+    container = client.containers.get(container_id)
+    #exec_result = container.exec_run(cmd=script_path)
+    exec_result = container.exec_run(cmd=cmd, detach=True)
+
+    if exec_result.exit_code == 0:
+        # 将输出从bytes解码为字符串
+        try:
+            # 尝试解码输出为 UTF-8 字符串，忽略解码错误
+            #output = exec_result.output.decode('utf-8', errors='ignore')
+            output = exec_result
+            print("Script output:", output)
+            return output
+        except UnicodeDecodeError:
+            # 如果解码失败，返回原始字节数据
+            print("Received non-UTF-8 output")
+            return exec_result.output
+    else:
+        print("Script execution failed with exit code:", exec_result.exit_code)
+        #print("Error output:", exec_result.output.decode('utf-8'))
+        print("Error output:", exec_result.output)
+        #error_message = f"Script execution failed with exit code: {exec_result.exit_code}\nError output: {exec_result.output.decode('utf-8')}"
+        error_message = f"Script execution failed with exit code: {exec_result.exit_code}\nError output: {exec_result.output}"
+        return error_message
 
 def exec_docker_container_shell(shell_path:str) -> str:
     client = docker.from_env()

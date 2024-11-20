@@ -172,7 +172,7 @@ def sec_enhance():
         shell_command = f"{script_path} {mission_id} {test_model} {enhance_id}"
         #shell_command = f"{script_path}"
         shell_path = f"{container_id}:{shell_command}"
-        exec_docker_container_shell(shell_path)
+        exec_docker_container_shell_detach(shell_path)
 
         return jsonify({
             "code": 200,
@@ -266,7 +266,7 @@ def adver_eval():
         container_id, script_path = dcoker_shell_run.split(":", 1)
         shell_command = f"{script_path} {mission_id}"
         shell_path = f"{container_id}:{shell_command}"
-        res = exec_docker_container_shell(shell_path)
+        res = exec_docker_container_shell_detach(shell_path)
 
         return jsonify({
             "code": 200,
@@ -400,26 +400,21 @@ def adver_gen():
     mission_id = request.form.get('mission_id', default=None, type=str)
     test_model = request.form.get('test_model', default=None, type=str)
     test_weight = request.form.get('test_weight', default=None, type=str)
-    #test_seed = request.form.get('test_seed', default=None, type=str)
+    test_seed = request.form.get('test_seed', default=None, type=str)
     test_method = request.form.get('test_method', default=None, type=str)
     timeout = request.form.get('timeout', default=None, type=int)
 
     file_paths = []
 
     mission_manager = MissionManager('Adver_gen_missions_DBSM.csv')
-    '''
-           根据docker引擎实际情况修改run.sh
 
-        exec_docker_container_shell("xxxxx:/some/path/your_run1.sh")
-        '''
-'''
-    if mission_id in mission_manager.missions.keys():   ###  if same mission id is executed twice, will report error
-        return jsonify({
-            "code": 400,
-            "message": "该任务已存在",
-            "data": {"status": 2},
-        })
-'''
+    # if mission_id in mission_manager.missions.keys():   ###  if same mission id is executed twice, will report error
+    #     return jsonify({
+    #         "code": 400,
+    #         "message": "该任务已存在",
+    #         "data": {"status": 2},
+    #     })
+    '''
     files = request.files.getlist('test_seed')  # 获取多个文件
     for file in files:
         if file.filename == '' or not str(file.filename).endswith(".zip"):
@@ -432,9 +427,10 @@ def adver_gen():
 
     seed_list = ",".join(file_paths)
 
-    test_seed = "1111"  #还未约定好文件传输格式，暂且给个确定值，方便后面测试
-
-    if all([mission_id, test_model, test_weight, test_seed, test_method, timeout]):
+    test_seed = "FGSM" #还未约定好文件传输格式，暂且给个确定值，方便后面测试
+    '''
+    #if all([mission_id, test_model, test_weight, test_seed, test_method, timeout]):
+    if all([mission_id, test_model, test_weight, test_method, timeout]):
         mission_status = 2
         mission = Mission(mission_id, test_model, test_weight, test_seed, test_method, timeout, mission_status)
         mission_manager.add_or_update_mission(mission)
@@ -444,7 +440,7 @@ def adver_gen():
         docker_shell_run = model_dict[test_model].get('docker_container_run_shell')
 
         container_id, script_path = docker_shell_run.split(":", 1)
-        
+
         # 构建完整的命令：run.sh test_model test_weight test_seed test_method
         shell_command = f"{script_path} {mission_id} {test_model} {test_weight} {test_seed} {test_method} {timeout}"
 
@@ -452,8 +448,10 @@ def adver_gen():
         shell_path = f"{container_id}:{shell_command}"
 
         #shell_path = f"{container_id}:{script_path}"
+
         upload_files_to_docker(file_paths, container_id)
 
+       # exec_docker_container_shell_detach(shell_path)
         exec_docker_container_shell(shell_path)
 
         return jsonify({
@@ -467,7 +465,6 @@ def adver_gen():
             "message": "POST参数有误",
             "data": {"status": 2},
         })
-
 ## mode5: 获取被测对象的模型权重文件列表、对抗方法列表的数据源
 @app.route('/check_model', methods=['GET'])
 def check_model():
